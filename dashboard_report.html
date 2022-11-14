@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Report</title>
+    <style>
+        @page {
+            size: A4 portrait;
+        }
+        .image{
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 75%;
+            height: 75%;
+        }
+        .HEADFOOT{
+            min-height: 2%;
+        }
+        @page:right{
+            @bottom-right{
+                content: "Quantified Self Monthly Progress Report";
+                color: black;
+                font-size: x-small;
+            }
+        }
+        @page:left{
+            @bottom-left{
+                content: "Quantified Self Monthly Progress Report";
+                color: black;
+                font-size: x-small;
+            }
+        }
+        table {
+            page-break-inside: avoid;
+        }
+        h1 {
+            page-break-before: always;
+        }
+        h1 {
+            page-break-after: avoid;
+        }
+        .tables {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @page:right{
+            @top-right-corner {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: x-small;
+            }
+        }
+        @page:left{
+            @top-left-corner {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: x-small;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header style="background-color:purple; color:purple; position: fixed; top: 0; width: 100%;" class="HEADFOOT">Header</header>
+    <h1 style="text-align: center; color: black;">
+       Monthly Dashboard Report 
+    </h1>
+    <div style="text-align: justify; color:black;">
+        <h4>
+            Dear {{ name }},
+        </h4>
+        <p> Thank you for being a valued user of our Quantified Self Application.</p>
+        {% if trackers|length > 0 %}
+        <br />
+        <p> Here is the current status of your trackers:</p>
+        <div style="text-align: center; color: black;" class="tables">
+            <table style="border:2px solid black; border-collapse:collapse;">
+                <tr>
+                    <th style="border:2px solid black; border-collapse:collapse;">
+                        Tracker ID
+                    </th>
+                    <th style="border:2px solid black; border-collapse:collapse;">
+                        Tracker Type
+                    </th>
+                    <th style="border:2px solid black; border-collapse:collapse;">
+                        Tracker Name
+                    </th>
+                    <th style="border:2px solid black; border-collapse:collapse;">
+                        Tracker Description
+                    </th>
+                    <th style="border:2px solid black; border-collapse:collapse;">
+                        Tracker Last Reviewed Timestamp
+                    </th>
+                    <th style="border:2px solid black; border-collapse:collapse;">
+                        Tracker Last Logged Timestamp
+                    </th>
+                </tr>
+                {% for tracker in trackers %}
+                <tr>
+                    <td style="border:2px solid black; border-collapse:collapse;">
+                        {{ tracker.tracker_id }}
+                    </td>
+                    <td style="border:2px solid black; border-collapse:collapse;">
+                    {{ tracker.tracker_type }}
+                    </td>
+                    <td style="border:2px solid black; border-collapse:collapse;">
+                    {{ tracker.tracker_name }}
+                    </td>
+                    <td style="border:2px solid black; border-collapse:collapse;">
+                    {{ tracker.description }}
+                    </td>
+                    <td style="border:2px solid black; border-collapse:collapse;">
+                    {{ tracker.tracker_last_reviewed.strftime("%d %B %Y %H:%M:%S %Z") }}
+                    </td>
+                    <td style="border:2px solid black; border-collapse:collapse;">
+                    {{ tracker.tracker_last_logged.strftime("%d %B %Y %H:%M:%S %Z") }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        <p> The logs of your various trackers are present in the upcoming pages.</p>
+        </div>
+            <div>
+                    {% for record in records %}
+                        <h1>Logs For {{ record["tracker_name"] }} Tracker</h1>
+                        {% if record["logs"]| length>0 %}
+                        <p> This is a {{ record["tracker_type"] }} tracker. The records for the same are as follows:</p>
+                        <div style="text-align: center; color: black;" class="tables">
+                            <table style="border:2px solid black; border-collapse:collapse;">
+                                <tr>
+                                    <th style="border:2px solid black; border-collapse:collapse;">
+                                        Log ID
+                                    </th>
+                                    <th style="border:2px solid black; border-collapse:collapse;">
+                                        Log Value
+                                    </th>
+                                    <th style="border:2px solid black; border-collapse:collapse;">
+                                        Log Note
+                                    </th>
+                                    <th style="border:2px solid black; border-collapse:collapse;">
+                                        Log Timestamp
+                                    </th>
+                                </tr>
+                                {% for thing in record["logs"] %}
+                                <tr>
+                                    <td style="border:2px solid black; border-collapse:collapse;">
+                                        {{ thing["logID"] }}
+                                    </td>
+                                    <td style="border:2px solid black; border-collapse:collapse;">
+                                    {{ thing["tracker_value"] }}
+                                    </td>
+                                    <td style="border:2px solid black; border-collapse:collapse;">
+                                    {{ thing["tracker_note"] }}
+                                    </td>
+                                    <td style="border:2px solid black; border-collapse:collapse;">
+                                    {{ thing["tracker_timestamp"].strftime("%d %B %Y %H:%M:%S %Z") }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        <br />
+                        <h5> A graphical summary of your activity is as follows:</h5>
+                        <div>
+                            <img src="{{ record['graph'] }}" class="image">
+                        </div>
+                        {% else %}
+                        <p> Unfortunately you don't have any logs for this tracker. However it is never too late. Get going to be on top of your health game.</p>
+                        <div>
+                        <img src="file:///home/arya/MAD2_Project_PWA/backend/static/it_is_never_too_late_1920x1080.jpg" class="image">
+                        <p style="text-align: center; font-size: xx-small;"><i>Source: https://www.makemebetter.net/its-never-too-late-to-start-something-new/</i></p>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+            </div>    
+        {% else %}
+        <p> Unfortunately you haven't created any trackers with our application. But it's never too late to start. Start today to get on top of your health and fitness.</p>
+        <br />
+        <img src="file:///home/arya/MAD2_Project_PWA/backend/static/it_is_never_too_late_1920x1080.jpg" class="image">
+        <p style="text-align: center; font-size: xx-small;"><i>Source: https://www.makemebetter.net/its-never-too-late-to-start-something-new/</i></p>
+        {% endif %}
+    </div>
+    <footer style="background-color:orange; color: orange; position: fixed;bottom: 0; width: 100%;" class="HEADFOOT"> Footer</footer>
+</body>
+</html>
